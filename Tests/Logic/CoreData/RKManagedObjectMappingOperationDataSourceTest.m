@@ -1458,13 +1458,14 @@
                                                                                                                                                       cache:managedObjectCache];
     mappingOperationDataSource.operationQueue = [NSOperationQueue new];
     
-    NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @123 };
+    NSDictionary *representation = @{ @"name": @"Blake Watters", @"nickName": @"blakewatters", @"railsID": @123 };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
-    [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID" ]];
-    [humanMapping setModificationAttributeForName:@"name"];
+    [humanMapping addAttributeMappingsFromArray:@[ @"name", @"nickName", @"railsID" ]];
+    [humanMapping setModificationAttributesForNames:@[ @"name", @"nickName" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:@"Blake Watters" forKey:@"name"];
+    [human setValue:@"blakewatters" forKey:@"nickName"];
     RKMappingOperation *mappingOperation = [[RKMappingOperation alloc] initWithSourceObject:representation destinationObject:human mapping:humanMapping];
     mappingOperation.dataSource = mappingOperationDataSource;
     
@@ -1480,13 +1481,14 @@
                                                                                                                                                       cache:managedObjectCache];
     mappingOperationDataSource.operationQueue = [NSOperationQueue new];
     
-    NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @123 };
+    NSDictionary *representation = @{ @"name": @"Blake Watters", @"nickName": @"blakewatters", @"railsID": @123 };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
-    [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID" ]];
-    [humanMapping setModificationAttributeForName:@"name"];
+    [humanMapping addAttributeMappingsFromArray:@[ @"name", @"nickName", @"railsID" ]];
+    [humanMapping setModificationAttributesForNames:@[ @"name", @"nickName" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:@"MISMATCH" forKey:@"name"];
+    [human setValue:@"blakewatters" forKey:@"nickName"];
     RKMappingOperation *mappingOperation = [[RKMappingOperation alloc] initWithSourceObject:representation destinationObject:human mapping:humanMapping];
     mappingOperation.dataSource = mappingOperationDataSource;
     
@@ -1506,7 +1508,7 @@
     NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @123, @"updatedAt": updatedAt };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
     [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID", @"updatedAt" ]];
-    [humanMapping setModificationAttributeForName:@"updatedAt"];
+    [humanMapping setModificationAttributesForNames:@[ @"updatedAt" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:updatedAt forKey:@"updatedAt"];
@@ -1530,7 +1532,7 @@
     NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @123, @"updatedAt": updatedAt };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
     [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID", @"updatedAt" ]];
-    [humanMapping setModificationAttributeForName:@"updatedAt"];
+    [humanMapping setModificationAttributesForNames:@[ @"updatedAt" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:futureDate forKey:@"updatedAt"];
@@ -1554,7 +1556,7 @@
     NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @123, @"updatedAt": futureDate };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
     [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID", @"updatedAt" ]];
-    [humanMapping setModificationAttributeForName:@"updatedAt"];
+    [humanMapping setModificationAttributesForNames:@[ @"updatedAt" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:updatedAt forKey:@"updatedAt"];
@@ -1576,7 +1578,7 @@
     NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @123 };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
     [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID", @"updatedAt" ]];
-    [humanMapping setModificationAttributeForName:@"railsID"];
+    [humanMapping setModificationAttributesForNames:@[ @"railsID" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:@123 forKey:@"railsID"];
@@ -1598,7 +1600,7 @@
     NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @100 };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
     [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID", @"updatedAt" ]];
-    [humanMapping setModificationAttributeForName:@"railsID"];
+    [humanMapping setModificationAttributesForNames:@[ @"railsID" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:@999 forKey:@"railsID"];
@@ -1620,7 +1622,7 @@
     NSDictionary *representation = @{ @"name": @"Blake Watters", @"railsID": @999 };
     RKEntityMapping *humanMapping = [RKEntityMapping mappingForEntityForName:@"Human" inManagedObjectStore:managedObjectStore];
     [humanMapping addAttributeMappingsFromArray:@[ @"name", @"railsID", @"updatedAt" ]];
-    [humanMapping setModificationAttributeForName:@"railsID"];
+    [humanMapping setModificationAttributesForNames:@[ @"railsID" ]];
     
     NSManagedObject *human = [NSEntityDescription insertNewObjectForEntityForName:@"Human" inManagedObjectContext:managedObjectStore.persistentStoreManagedObjectContext];
     [human setValue:@100 forKey:@"railsID"];
