@@ -75,7 +75,8 @@ static NSDictionary *RKEntityIdentificationAttributesForEntityMappingWithReprese
     if (nestingAttributeMapping) {
         Class attributeClass = [entityMapping classForProperty:nestingAttributeMapping.destinationKeyPath];
         id attributeValue = nil;
-        [entityMapping.valueTransformer transformValue:[[representation allKeys] lastObject] toValue:&attributeValue ofClass:attributeClass error:&error];
+        id<RKValueTransforming> valueTransformer = nestingAttributeMapping.valueTransformer ?: entityMapping.valueTransformer;
+        [valueTransformer transformValue:[[representation allKeys] lastObject] toValue:&attributeValue ofClass:attributeClass error:&error];
         attributeMappings = RKApplyNestingAttributeValueToMappings(nestingAttributeMapping.destinationKeyPath, attributeValue, attributeMappings);
     }
     
@@ -86,7 +87,9 @@ static NSDictionary *RKEntityIdentificationAttributesForEntityMappingWithReprese
         Class attributeClass = [entityMapping classForProperty:[attribute name]];
         id sourceValue = RKValueForAttributeMappingInRepresentation(attributeMapping, representation);
         id attributeValue = nil;
-        if (sourceValue) [entityMapping.valueTransformer transformValue:sourceValue toValue:&attributeValue ofClass:attributeClass error:&error];
+        id<RKValueTransforming> valueTransformer = attributeMapping.valueTransformer ?: entityMapping.valueTransformer;
+
+        if (sourceValue) [valueTransformer transformValue:sourceValue toValue:&attributeValue ofClass:attributeClass error:&error];
         [entityIdentifierAttributes setObject:attributeValue ?: [NSNull null] forKey:[attribute name]];
     }];
     
@@ -434,10 +437,10 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
     return YES;
 }
 
-- (BOOL)mappingOperation:(RKMappingOperation *)mappingOperation shouldSetUnchangedValuesForObject:(id)object
+- (BOOL)mappingOperationShouldSetUnchangedValues:(RKMappingOperation *)mappingOperation
 {
     // Only new objects should have a temporary ID
-    if ([object isKindOfClass:[NSManagedObject class]] && [[(NSManagedObject *)object objectID] isTemporaryID]) {
+    if ([mappingOperation.destinationObject isKindOfClass:[NSManagedObject class]] && [[(NSManagedObject *)mappingOperation.destinationObject objectID] isTemporaryID]) {
         return YES;
     }
     else return NO;
@@ -451,29 +454,30 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
     if ([entityMapping.modificationAttributes count] == 0) return NO;
 
     for (NSAttributeDescription *modificationAttribute in entityMapping.modificationAttributes) {
-        NSString *modificationKey = modificationAttribute.name;
-        if (! modificationKey) return NO;
-        id currentValue = [mappingOperation.destinationObject valueForKey:modificationKey];
-        if (! currentValue) return NO;
-        if (! [currentValue respondsToSelector:@selector(compare:)]) return NO;
+      NSString *modificationKey = [modificationAttribute name];
+      if (! modificationKey) return NO;
+      id currentValue = [mappingOperation.destinationObject valueForKey:modificationKey];
+      if (! currentValue) return NO;
+      if (! [currentValue respondsToSelector:@selector(compare:)]) return NO;
 
-        RKPropertyMapping *propertyMappingForModificationKey = [[(RKEntityMapping *)mappingOperation.mapping propertyMappingsByDestinationKeyPath] objectForKey:modificationKey];
-        id rawValue = [[mappingOperation sourceObject] valueForKeyPath:propertyMappingForModificationKey.sourceKeyPath];
-        if (! rawValue) return NO;
-        Class attributeClass = [entityMapping classForProperty:propertyMappingForModificationKey.destinationKeyPath];
+      RKPropertyMapping *propertyMappingForModificationKey = [[(RKEntityMapping *)mappingOperation.mapping propertyMappingsByDestinationKeyPath] objectForKey:modificationKey];
+      id rawValue = [[mappingOperation sourceObject] valueForKeyPath:propertyMappingForModificationKey.sourceKeyPath];
+      if (! rawValue) return NO;
+      Class attributeClass = [entityMapping classForProperty:propertyMappingForModificationKey.destinationKeyPath];
 
-        id transformedValue = nil;
-        NSError *error = nil;
-        [entityMapping.valueTransformer transformValue:rawValue toValue:&transformedValue ofClass:attributeClass error:&error];
-        if (! transformedValue) return NO;
+      id transformedValue = nil;
+      NSError *error = nil;
+      id<RKValueTransforming> valueTransformer = propertyMappingForModificationKey.valueTransformer ?: entityMapping.valueTransformer;
+      [valueTransformer transformValue:rawValue toValue:&transformedValue ofClass:attributeClass error:&error];
+      if (! transformedValue) return NO;
 
-        if ([currentValue isKindOfClass:[NSString class]]) {
-            if (! [currentValue isEqualToString:transformedValue]) {
-                return NO;
-            }
-        } else if ([currentValue compare:transformedValue] == NSOrderedAscending) {
+      if ([currentValue isKindOfClass:[NSString class]]) {
+          if (! [currentValue isEqualToString:transformedValue]) {
             return NO;
-        }
+          }
+      } else if ([currentValue compare:transformedValue] == NSOrderedAscending) {
+          return NO;
+      }
     }
 
     return YES;
